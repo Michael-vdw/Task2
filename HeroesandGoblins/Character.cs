@@ -1,0 +1,92 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HeroesandGoblins
+{
+    abstract class Character : Tile
+    {
+        private protected int hp, maxHP, damage;
+        private protected int symbol;
+        private protected Tile[] vision = new Tile[4];
+
+        public int HP { get => hp; set => hp = value; }
+        public int MaxHP { get => maxHP; set => maxHP = value; }
+        public int Damage { get => damage; set => damage = value; }
+        public int Symbol { get => symbol; set => symbol = value; }
+        public Tile[] Vision { get => vision; set => vision = value; }
+        public enum Movement
+        {
+            NoMove,
+            Up,
+            Down,
+            Left,
+            Right
+        }
+
+        public Character(int x, int y, char symbol) : base(x, y)
+        {
+
+        }
+
+        public virtual void Attack(Character target)
+        {
+            target.hp -= Damage;
+        }
+
+        public bool IsDead()
+        {
+            if (hp < 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public virtual bool CheckRange(Character target)
+        {
+            if (DistanceTo(target) < 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private int DistanceTo(Character target)
+        {
+            return Math.Abs(target.X - this.X) + Math.Abs(target.Y - this.Y);
+        }
+
+        public void Move(Movement move)
+        {
+            if (move == Movement.Up)
+            {
+                y--;
+            }
+            if (move == Movement.Down)
+            {
+                y++;
+            }
+            if (move == Movement.Left)
+            {
+                x--;
+            }
+            if (move == Movement.Right)
+            {
+                x++;
+            }
+        }
+
+        public abstract Movement ReturnMove(Movement move);
+
+        public abstract override string ToString();
+    }
+}
