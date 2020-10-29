@@ -14,6 +14,8 @@ namespace HeroesandGoblins
     {
         private static readonly char cHero = 'H';
         private static readonly char cGoblin = 'G';
+        private static readonly char cMage = 'M';
+        private static readonly char cGold = '$';
         private static readonly char cEmpty = '.';
         private static readonly char cObstacle = 'X';
         GameEngine gameEngine = new GameEngine();
@@ -22,7 +24,7 @@ namespace HeroesandGoblins
         {
             public Goblin(int x, int y) : base(x, y, 1, 10, 10, 'G')
             {
-                thisTile = TileType.Enemy;
+                thisTile = TileType.Goblin;
             }
 
             public override Movement ReturnMove(Movement move)
@@ -42,7 +44,7 @@ namespace HeroesandGoblins
         {
             public Mage(int x, int y) : base(x, y, 5, 5, 5, 'M')
             {
-                thisTile = TileType.Enemy;
+                thisTile = TileType.Mage;
             }
 
             public override Movement ReturnMove(Movement move)
@@ -87,7 +89,7 @@ namespace HeroesandGoblins
 
             public override string ToString()
             {
-                return "Player stats: \nHP:" + hp + "/" + maxHP + "\nDamage:" + damage + "\nCoordinates:" + "[" + x + "," + y + "]"; 
+                return "Player stats: \nHP:" + hp + "/" + maxHP + "\nDamage:" + damage + "\nCoordinates:" + "[" + x + "," + y + "]" + "\nGold:" + gold; 
             }
         }
 
@@ -109,6 +111,7 @@ namespace HeroesandGoblins
             public Hero Player { get => player; set => player = value; }
             public Enemy[] Enemies { get => enemies; set => enemies = value; }
             public Tile[,] TileMap { get => tileMap; set => tileMap = value; }
+            public Item[] Items { get => items; set => items = value; }
 
             public Map(int minwidth, int maxwidth, int minheight, int maxheight, int enemynum, int gold)
             {
@@ -139,9 +142,19 @@ namespace HeroesandGoblins
                 i = 0;
                 while(i < enemynum)
                 {
-                    Create(Tile.TileType.Enemy);
+                    int randomEnemy = randomnum.Next(1, 3);
+                    if (randomEnemy == 1)
+                    {
+                        Create(Tile.TileType.Goblin);
+                    }
+                    else
+                    {
+                        Create(Tile.TileType.Mage);
+                    }
                     i++;
                 }
+
+                i = 0;
                 while (i < gold)
                 {
                     Create(Tile.TileType.Gold);
@@ -174,6 +187,21 @@ namespace HeroesandGoblins
                 }
             }
 
+            public Item GetItemAtPosition(int x, int y)
+            {
+                for (int i = 0; i > items.Length; i++)
+                {
+                    if (items[i].X == x && items[i].Y == y)
+                    {
+                        Item tempgold;
+                        tempgold = items[i];
+                        items[i] = null;
+                        return tempgold;
+                    }
+                }
+                return null;
+            }
+
             private Tile Create(Tile.TileType type)
             {
                 int x = randomnum.Next(1, width);
@@ -196,17 +224,15 @@ namespace HeroesandGoblins
                     tileMap[items[i].X, items[i].Y] = items[i];
                     return items[i];
                 }
-                if (type == Tile.TileType.Enemy)
+                if (type == Tile.TileType.Goblin)
                 {
-                    int randomEnemy = randomnum.Next(1, 3);
-                    if (randomEnemy == 1)
-                    {
-                        enemies[i] = new Goblin(x, y);
-                    }
-                    else
-                    {
-                        enemies[i] = new Mage(x, y);
-                    }
+                    enemies[i] = new Goblin(x, y);
+                    tileMap[enemies[i].X, enemies[i].Y] = enemies[i];
+                    return enemies[i];
+                }
+                if (type == Tile.TileType.Mage)
+                {
+                    enemies[i] = new Mage(x, y);
                     tileMap[enemies[i].X, enemies[i].Y] = enemies[i];
                     return enemies[i];
                 }
@@ -240,6 +266,21 @@ namespace HeroesandGoblins
                         EngineMap.UpdateVision();
                         return true;
                     }
+                    if(player.Vision[1].thisTile == Tile.TileType.Gold)
+                    {
+                        for (int i = 0; i < engineMap.Items.Length; i++)
+                        {
+                            if (engineMap.Items[i].X == player.X && EngineMap.Items[i].Y - 1 == player.Y)
+                            {
+                                player.Pickup(engineMap.Items[i]);
+                            }
+                        }
+                        player.Move(Character.Movement.Down);
+                        EngineMap.TileMap[player.X, player.Y] = player;
+                        EngineMap.TileMap[player.X, player.Y - 1] = new EmptyTile(player.X, player.Y - 1);
+                        EngineMap.UpdateVision();
+                        return true;
+                    }
                     else
                     {
                         //MessageBox.Show("Path Blocked","Cannot move here");
@@ -250,6 +291,21 @@ namespace HeroesandGoblins
                 {
                     if (player.Vision[3].thisTile == Tile.TileType.Empty)
                     {
+                        player.Move(Character.Movement.Right);
+                        EngineMap.TileMap[player.X, player.Y] = player;
+                        EngineMap.TileMap[player.X - 1, player.Y] = new EmptyTile(player.X - 1, player.Y);
+                        EngineMap.UpdateVision();
+                        return true;
+                    }
+                    if (player.Vision[3].thisTile == Tile.TileType.Gold)
+                    {
+                        for (int i = 0; i < engineMap.Items.Length; i++)
+                        {
+                            if (engineMap.Items[i].X - 1 == player.X && EngineMap.Items[i].Y == player.Y)
+                            {
+                                player.Pickup(engineMap.Items[i]);
+                            }
+                        }
                         player.Move(Character.Movement.Right);
                         EngineMap.TileMap[player.X, player.Y] = player;
                         EngineMap.TileMap[player.X - 1, player.Y] = new EmptyTile(player.X - 1, player.Y);
@@ -272,6 +328,21 @@ namespace HeroesandGoblins
                         EngineMap.UpdateVision();
                         return true;
                     }
+                    if (player.Vision[2].thisTile == Tile.TileType.Gold)
+                    {
+                        for (int i = 0; i < engineMap.Items.Length; i++)
+                        {
+                            if (engineMap.Items[i].X + 1 == player.X && EngineMap.Items[i].Y == player.Y)
+                            {
+                                player.Pickup(engineMap.Items[i]);
+                            }
+                        }
+                        player.Move(Character.Movement.Left);
+                        EngineMap.TileMap[player.X, player.Y] = player;
+                        EngineMap.TileMap[player.X + 1, player.Y] = new EmptyTile(player.X + 1, player.Y);
+                        EngineMap.UpdateVision();
+                        return true;
+                    }
                     else
                     {
                         //MessageBox.Show("Path Blocked", "Cannot move here");
@@ -284,6 +355,21 @@ namespace HeroesandGoblins
                     {
                         player.Move(Character.Movement.Up);
                         EngineMap.TileMap[player.X, player.Y] = player;                      
+                        EngineMap.TileMap[player.X, player.Y + 1] = new EmptyTile(player.X, player.Y + 1);
+                        EngineMap.UpdateVision();
+                        return true;
+                    }
+                    if (player.Vision[0].thisTile == Tile.TileType.Gold)
+                    {
+                        for (int i = 0; i < engineMap.Items.Length; i++)
+                        {
+                            if (engineMap.Items[i].X == player.X && EngineMap.Items[i].Y + 1 == player.Y)
+                            {
+                                player.Pickup(engineMap.Items[i]);
+                            }
+                        }
+                        player.Move(Character.Movement.Up);
+                        EngineMap.TileMap[player.X, player.Y] = player;
                         EngineMap.TileMap[player.X, player.Y + 1] = new EmptyTile(player.X, player.Y + 1);
                         EngineMap.UpdateVision();
                         return true;
@@ -302,12 +388,9 @@ namespace HeroesandGoblins
 
         class Gold : Item
         {
-            private int gold;
-            private Random goldRandom = new Random();
-
             public Gold(int x, int y) : base(x,y)
             {
-                gold = goldRandom.Next(1, 6);
+                thisTile = Tile.TileType.Gold;
             }
         }
 
@@ -323,9 +406,13 @@ namespace HeroesandGoblins
                     {
                         labelMap.Text += cEmpty;
                     }
-                    if (gameEngine.EngineMap.TileMap[x, y].ThisTile == Tile.TileType.Enemy)
+                    if (gameEngine.EngineMap.TileMap[x, y].ThisTile == Tile.TileType.Goblin)
                     {
                         labelMap.Text += cGoblin;
+                    }
+                    if (gameEngine.EngineMap.TileMap[x, y].ThisTile == Tile.TileType.Mage)
+                    {
+                        labelMap.Text += cMage;
                     }
                     if (gameEngine.EngineMap.TileMap[x, y].ThisTile == Tile.TileType.Hero)
                     {
@@ -334,6 +421,10 @@ namespace HeroesandGoblins
                     if (gameEngine.EngineMap.TileMap[x, y].ThisTile == Tile.TileType.Obstacle)
                     {
                         labelMap.Text += cObstacle;
+                    }
+                    if (gameEngine.EngineMap.TileMap[x, y].ThisTile == Tile.TileType.Gold)
+                    {
+                        labelMap.Text += cGold;
                     }
                 }
                 labelMap.Text += "\n";

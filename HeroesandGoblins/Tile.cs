@@ -17,7 +17,8 @@ namespace HeroesandGoblins
         public enum TileType
         {
             Hero,
-            Enemy,
+            Goblin,
+            Mage,
             Gold,
             Weapon,
             Empty,

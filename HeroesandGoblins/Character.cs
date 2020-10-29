@@ -8,14 +8,15 @@ namespace HeroesandGoblins
 {
     abstract class Character : Tile
     {
-        private protected int hp, maxHP, damage;
-        private protected int symbol;
+        private protected int hp, maxHP, damage, gold;
+        private protected char symbol;
         private protected Tile[] vision = new Tile[8];
 
         public int HP { get => hp; set => hp = value; }
         public int MaxHP { get => maxHP; set => maxHP = value; }
         public int Damage { get => damage; set => damage = value; }
-        public int Symbol { get => symbol; set => symbol = value; }
+        public int Gold { get => gold; set => gold = value; }
+        public char Symbol { get => symbol; set => symbol = value; }
         public Tile[] Vision { get => vision; set => vision = value; }
         public enum Movement
         {
@@ -82,6 +83,15 @@ namespace HeroesandGoblins
             if (move == Movement.Right)
             {
                 x++;
+            }
+        }
+
+        public void Pickup(Item i)
+        {
+            Random goldRandom = new Random();
+            if (i.thisTile == Tile.TileType.Gold)
+            {
+                Gold += goldRandom.Next(1, 6);
             }
         }
 
