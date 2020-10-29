@@ -10,7 +10,7 @@ namespace HeroesandGoblins
     {
         private protected int hp, maxHP, damage;
         private protected int symbol;
-        private protected Tile[] vision = new Tile[4];
+        private protected Tile[] vision = new Tile[8];
 
         public int HP { get => hp; set => hp = value; }
         public int MaxHP { get => maxHP; set => maxHP = value; }

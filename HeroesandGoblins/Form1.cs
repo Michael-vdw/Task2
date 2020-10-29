@@ -38,6 +38,31 @@ namespace HeroesandGoblins
             }
         }
 
+        class Mage : Enemy
+        {
+            public Mage(int x, int y) : base(x, y, 5, 5, 5, 'M')
+            {
+                thisTile = TileType.Enemy;
+            }
+
+            public override Movement ReturnMove(Movement move)
+            {
+                return Movement.NoMove;
+            }
+
+            public override bool CheckRange(Character target)
+            {
+                for (int i = 0; i > 8; i++)
+                {
+                    if (vision[i].ThisTile == TileType.Hero)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         private class Hero : Character
         {
             public Hero(int x, int y, int hp) : base(x, y, 'H')
@@ -71,6 +96,7 @@ namespace HeroesandGoblins
             private Tile[,] tileMap;
             private Hero player;
             private Enemy[] enemies;
+            private Item[] items;
             private int minWidth, maxWidth, minHeight, maxHeight, height, width, i;
             Random randomnum = new Random();
 
@@ -84,11 +110,12 @@ namespace HeroesandGoblins
             public Enemy[] Enemies { get => enemies; set => enemies = value; }
             public Tile[,] TileMap { get => tileMap; set => tileMap = value; }
 
-            public Map(int minwidth, int maxwidth, int minheight, int maxheight, int enemynum)
+            public Map(int minwidth, int maxwidth, int minheight, int maxheight, int enemynum, int gold)
             {
                 Height = randomnum.Next(minheight, maxheight);
                 Width = randomnum.Next(minwidth, maxwidth);
 
+                items = new Item[gold];
                 tileMap = new Tile[width, height];
                 enemies = new Enemy[enemynum];
 
@@ -115,6 +142,11 @@ namespace HeroesandGoblins
                     Create(Tile.TileType.Enemy);
                     i++;
                 }
+                while (i < gold)
+                {
+                    Create(Tile.TileType.Gold);
+                    i++;
+                }
 
                 UpdateVision();
             }
@@ -124,6 +156,10 @@ namespace HeroesandGoblins
                 player.Vision[1] = tileMap[player.X, player.Y + 1];
                 player.Vision[2] = tileMap[player.X - 1, player.Y];
                 player.Vision[3] = tileMap[player.X + 1, player.Y];
+                player.Vision[4] = tileMap[player.X - 1, player.Y - 1];
+                player.Vision[5] = tileMap[player.X + 1, player.Y - 1];
+                player.Vision[6] = tileMap[player.X + 1, player.Y + 1];
+                player.Vision[7] = tileMap[player.X - 1, player.Y - 1];
 
                 for (int i = 0; i > enemies.Length; i++)
                 {
@@ -131,6 +167,10 @@ namespace HeroesandGoblins
                     enemies[i].Vision[1] = tileMap[enemies[i].X, enemies[i].Y + 1];
                     enemies[i].Vision[2] = tileMap[enemies[i].X - 1, enemies[i].Y];
                     enemies[i].Vision[3] = tileMap[enemies[i].X + 1, enemies[i].Y];
+                    enemies[i].Vision[4] = tileMap[enemies[i].X - 1, enemies[i].Y - 1];
+                    enemies[i].Vision[5] = tileMap[enemies[i].X + 1, enemies[i].Y - 1];
+                    enemies[i].Vision[6] = tileMap[enemies[i].X + 1, enemies[i].Y + 1];
+                    enemies[i].Vision[7] = tileMap[enemies[i].X - 1, enemies[i].Y - 1];
                 }
             }
 
@@ -150,9 +190,23 @@ namespace HeroesandGoblins
                     tileMap[player.X, player.Y] = player;
                     return player;
                 }
+                if (type == Tile.TileType.Gold)
+                {
+                    items[i] = new Gold(x, y);
+                    tileMap[items[i].X, items[i].Y] = items[i];
+                    return items[i];
+                }
                 if (type == Tile.TileType.Enemy)
                 {
-                    enemies[i] = new Goblin(x, y);
+                    int randomEnemy = randomnum.Next(1, 3);
+                    if (randomEnemy == 1)
+                    {
+                        enemies[i] = new Goblin(x, y);
+                    }
+                    else
+                    {
+                        enemies[i] = new Mage(x, y);
+                    }
                     tileMap[enemies[i].X, enemies[i].Y] = enemies[i];
                     return enemies[i];
                 }
@@ -170,7 +224,7 @@ namespace HeroesandGoblins
 
             public GameEngine() 
             {
-                engineMap = new Map(10,15,10,15,5);
+                engineMap = new Map(10,15,10,15,5, 5);
                 player = engineMap.Player;
             }
 

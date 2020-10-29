@@ -16,3 +16,12 @@ D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\Task1\Her
 D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\Task1\HeroesandGoblins\obj\Debug\HeroesandGoblins.csproj.GenerateResource.cache
 D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\Task1\HeroesandGoblins\obj\Debug\HeroesandGoblins.exe
 D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\Task1\HeroesandGoblins\obj\Debug\HeroesandGoblins.pdb
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\bin\Debug\HeroesandGoblins.exe.config
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\bin\Debug\HeroesandGoblins.exe
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\bin\Debug\HeroesandGoblins.pdb
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\obj\Debug\HeroesandGoblins.csprojAssemblyReference.cache
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\obj\Debug\HeroesandGoblins.Form1.resources
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\obj\Debug\HeroesandGoblins.Properties.Resources.resources
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\obj\Debug\HeroesandGoblins.csproj.GenerateResource.cache
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\obj\Debug\HeroesandGoblins.exe
+D:\OneDrive\OneDrive - Vega School\Vega\Game Development\Project\Task2\GitRepo\Task2\HeroesandGoblins\obj\Debug\HeroesandGoblins.pdb
