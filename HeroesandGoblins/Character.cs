@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HeroesandGoblins
 {
+    [Serializable]
     abstract class Character : Tile
     {
         private protected int hp, maxHP, damage, gold;

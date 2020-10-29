@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HeroesandGoblins
 {
+    [Serializable]
     abstract class Enemy : Character
     {
         Random random = new Random();

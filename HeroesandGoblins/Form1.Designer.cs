@@ -37,6 +37,8 @@
             this.cbxEnemies = new System.Windows.Forms.ComboBox();
             this.btnAttack = new System.Windows.Forms.Button();
             this.rtbAttack = new System.Windows.Forms.RichTextBox();
+            this.btnLoad = new System.Windows.Forms.Button();
+            this.Save = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnUp
@@ -125,11 +127,33 @@
             this.rtbAttack.TabIndex = 8;
             this.rtbAttack.Text = "";
             // 
+            // btnLoad
+            // 
+            this.btnLoad.Location = new System.Drawing.Point(521, 415);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(75, 23);
+            this.btnLoad.TabIndex = 9;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            // 
+            // Save
+            // 
+            this.Save.Location = new System.Drawing.Point(521, 386);
+            this.Save.Name = "Save";
+            this.Save.Size = new System.Drawing.Size(75, 23);
+            this.Save.TabIndex = 10;
+            this.Save.Text = "Save";
+            this.Save.UseVisualStyleBackColor = true;
+            this.Save.Click += new System.EventHandler(this.Save_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.Save);
+            this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.rtbAttack);
             this.Controls.Add(this.btnAttack);
             this.Controls.Add(this.cbxEnemies);
@@ -157,6 +181,8 @@
         private System.Windows.Forms.ComboBox cbxEnemies;
         private System.Windows.Forms.Button btnAttack;
         private System.Windows.Forms.RichTextBox rtbAttack;
+        private System.Windows.Forms.Button btnLoad;
+        private System.Windows.Forms.Button Save;
     }
 }
 

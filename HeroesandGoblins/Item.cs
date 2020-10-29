@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HeroesandGoblins
 {
+    [Serializable]
     abstract class Item : Tile
     {
         public Item(int x, int y) : base(x,y)

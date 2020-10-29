@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,7 +22,7 @@ namespace HeroesandGoblins
         private static readonly char cEmpty = '.';
         private static readonly char cObstacle = 'X';
         GameEngine gameEngine = new GameEngine();
-
+        [Serializable]
         private class Goblin : Enemy
         {
             public Goblin(int x, int y) : base(x, y, 1, 10, 10, 'G')
@@ -39,7 +42,7 @@ namespace HeroesandGoblins
                 return (Movement)randomroll;
             }
         }
-
+        [Serializable]
         class Mage : Enemy
         {
             public Mage(int x, int y) : base(x, y, 5, 5, 5, 'M')
@@ -56,7 +59,7 @@ namespace HeroesandGoblins
             {
                 for (int i = 0; i > 8; i++)
                 {
-                    if (vision[i].ThisTile == TileType.Hero)
+                    if (vision[i].ThisTile == TileType.Hero || vision[i].ThisTile == TileType.Empty)
                     {
                         return true;
                     }
@@ -64,7 +67,7 @@ namespace HeroesandGoblins
                 return false;
             }
         }
-
+        [Serializable]
         private class Hero : Character
         {
             public Hero(int x, int y, int hp) : base(x, y, 'H')
@@ -92,7 +95,7 @@ namespace HeroesandGoblins
                 return "Player stats: \nHP:" + hp + "/" + maxHP + "\nDamage:" + damage + "\nCoordinates:" + "[" + x + "," + y + "]" + "\nGold:" + gold; 
             }
         }
-
+        [Serializable]
         class Map
         {
             private Tile[,] tileMap;
@@ -174,7 +177,7 @@ namespace HeroesandGoblins
                 player.Vision[6] = tileMap[player.X + 1, player.Y + 1];
                 player.Vision[7] = tileMap[player.X - 1, player.Y - 1];
 
-                for (int i = 0; i > enemies.Length; i++)
+                for (int i = 0; i < enemies.Length; i++)
                 {
                     enemies[i].Vision[0] = tileMap[enemies[i].X, enemies[i].Y - 1];
                     enemies[i].Vision[1] = tileMap[enemies[i].X, enemies[i].Y + 1];
@@ -189,7 +192,7 @@ namespace HeroesandGoblins
 
             public Item GetItemAtPosition(int x, int y)
             {
-                for (int i = 0; i > items.Length; i++)
+                for (int i = 0; i < items.Length; i++)
                 {
                     if (items[i].X == x && items[i].Y == y)
                     {
@@ -239,11 +242,13 @@ namespace HeroesandGoblins
                 return new EmptyTile(x, y);
             }
         }
-
+        [Serializable]
         class GameEngine
         {
             private Map engineMap;
             private Hero player;
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream("D:\\OneDrive\\OneDrive - Vega School\\Vega\\Game Development\\Project\\Task2\\GitRepo\\Task2\\HeroesandGoblins\\MapSaveFile.txt", FileMode.Create, FileAccess.Write);
             //private static readonly char 
             public Map EngineMap { get => engineMap; set => engineMap = value; }
             public Hero Player { get => player; set => player = value; }
@@ -252,6 +257,115 @@ namespace HeroesandGoblins
             {
                 engineMap = new Map(10,15,10,15,5, 5);
                 player = engineMap.Player;
+            }
+
+            public void Save()
+            {
+                formatter.Serialize(stream, engineMap);
+                stream.Close();
+            }
+
+            public void Load()
+            {
+                stream = new FileStream(@"D:\\OneDrive\\OneDrive - Vega School\\Vega\\Game Development\\Project\\Task2\\GitRepo\\Task2\\HeroesandGoblins\\MapSaveFile.txt", FileMode.Open, FileAccess.Read);
+                engineMap = (Map) formatter.Deserialize(stream);
+            }
+
+            public void EnemyAttacks()
+            {
+                for (int i = 0; i < engineMap.Enemies.Length; i++)
+                {
+                    if (engineMap.Enemies[i].thisTile == Tile.TileType.Goblin)
+                    {
+                        for (int ivision = 0; ivision < 4; ivision++)
+                        {
+                            if (engineMap.Enemies[i].Vision[0].thisTile == Tile.TileType.Hero)
+                            {
+                                engineMap.Enemies[i].Attack(player);
+                            }
+                        }
+                    }
+                    if (engineMap.Enemies[i].thisTile == Tile.TileType.Mage)
+                    {
+                        for (int ivision = 0; ivision < 8; ivision++)
+                        {
+                            if (engineMap.Enemies[i].Vision[ivision].thisTile == Tile.TileType.Hero)
+                            {
+                                engineMap.Enemies[i].Attack(player);
+                            }
+
+                            if (engineMap.Enemies[i].Vision[ivision].thisTile == Tile.TileType.Goblin)
+                            {
+                                for (int a = 0; a < engineMap.Enemies.Length; a++)
+                                {
+                                    if (engineMap.Enemies[a].X == engineMap.Enemies[i].Vision[ivision].X && engineMap.Enemies[a].Y == engineMap.Enemies[i].Vision[ivision].Y)
+                                    {
+                                        engineMap.Enemies[i].Attack(EngineMap.Enemies[a]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            public void MoveEnemies()
+            {
+                Random randomMove = new Random();
+                for (int i = 0; i < engineMap.Enemies.Length;)
+                {
+                    if (engineMap.Enemies[i].thisTile == Tile.TileType.Goblin)
+                    {
+                        int movenum = randomMove.Next(1, 5);
+                        switch (movenum)
+                        {
+                            case 1:
+                                if (engineMap.Enemies[i].Vision[0].thisTile == Tile.TileType.Empty)
+                                {
+                                    engineMap.Enemies[i].Move(Character.Movement.Up);
+                                    engineMap.TileMap[engineMap.Enemies[i].X, engineMap.Enemies[i].Y] = engineMap.Enemies[i];
+                                    engineMap.TileMap[engineMap.Enemies[i].X, engineMap.Enemies[i].Y + 1] = new EmptyTile(engineMap.Enemies[i].X, engineMap.Enemies[i].Y + 1);
+                                    engineMap.UpdateVision();
+                                    i++;
+                                }
+                                break;
+                            case 2:
+                                if (engineMap.Enemies[i].Vision[1].thisTile == Tile.TileType.Empty)
+                                {
+                                    engineMap.Enemies[i].Move(Character.Movement.Down);
+                                    engineMap.TileMap[engineMap.Enemies[i].X, engineMap.Enemies[i].Y] = engineMap.Enemies[i];
+                                    engineMap.TileMap[engineMap.Enemies[i].X, engineMap.Enemies[i].Y - 1] = new EmptyTile(engineMap.Enemies[i].X, engineMap.Enemies[i].Y - 1);
+                                    engineMap.UpdateVision();
+                                    i++;
+                                }
+                                break;
+                            case 3:
+                                if (engineMap.Enemies[i].Vision[2].thisTile == Tile.TileType.Empty)
+                                {
+                                    engineMap.Enemies[i].Move(Character.Movement.Left);
+                                    engineMap.TileMap[engineMap.Enemies[i].X, engineMap.Enemies[i].Y] = engineMap.Enemies[i];
+                                    engineMap.TileMap[engineMap.Enemies[i].X + 1, engineMap.Enemies[i].Y] = new EmptyTile(engineMap.Enemies[i].X + 1, engineMap.Enemies[i].Y);
+                                    engineMap.UpdateVision();
+                                    i++;
+                                }
+                                break;
+                            case 4:
+                                if (engineMap.Enemies[i].Vision[3].thisTile == Tile.TileType.Empty)
+                                {
+                                    engineMap.Enemies[i].Move(Character.Movement.Right);
+                                    engineMap.TileMap[engineMap.Enemies[i].X, engineMap.Enemies[i].Y] = engineMap.Enemies[i];
+                                    engineMap.TileMap[engineMap.Enemies[i].X - 1, engineMap.Enemies[i].Y] = new EmptyTile(engineMap.Enemies[i].X - 1, engineMap.Enemies[i].Y);
+                                    engineMap.UpdateVision();
+                                    i++;
+                                }
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
             }
 
             public bool MovePlayer(Character.Movement move)
@@ -382,10 +496,8 @@ namespace HeroesandGoblins
                 }
                 return false;
             }
-
-            
         }
-
+        [Serializable]
         class Gold : Item
         {
             public Gold(int x, int y) : base(x,y)
@@ -446,24 +558,32 @@ namespace HeroesandGoblins
         private void btnUp_Click_1(object sender, EventArgs e)
         {
             gameEngine.MovePlayer(Character.Movement.Up);
+            gameEngine.MoveEnemies();
+            gameEngine.EnemyAttacks();
             mapDraw();
         }
 
         private void btnRight_Click_1(object sender, EventArgs e)
         {
             gameEngine.MovePlayer(Character.Movement.Right);
+            gameEngine.MoveEnemies();
+            gameEngine.EnemyAttacks();
             mapDraw();
         }
 
         private void btnDown_Click_1(object sender, EventArgs e)
         {
             gameEngine.MovePlayer(Character.Movement.Down);
+            gameEngine.MoveEnemies();
+            gameEngine.EnemyAttacks();
             mapDraw();
         }
 
         private void btnleft_Click_1(object sender, EventArgs e)
         {
             gameEngine.MovePlayer(Character.Movement.Left);
+            gameEngine.MoveEnemies();
+            gameEngine.EnemyAttacks();
             mapDraw();
         }
 
@@ -473,6 +593,7 @@ namespace HeroesandGoblins
             {
                 gameEngine.Player.Attack((Character)cbxEnemies.SelectedItem);
                 rtbAttack.Text += "Attacked successfully\n";
+                gameEngine.EnemyAttacks();
             }
             else
             {
@@ -486,6 +607,17 @@ namespace HeroesandGoblins
                     cbxEnemies.Items.Remove(cbxEnemies.SelectedItem);
                 }
             }
+            mapDraw();
+        }
+
+        private void Save_Click(object sender, EventArgs e)
+        {
+            gameEngine.Save();
+        }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            gameEngine.Load();
             mapDraw();
         }
     }

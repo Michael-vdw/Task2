@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HeroesandGoblins
 {
+    [Serializable]
     abstract class Tile
     {
         private protected int x, y;
@@ -31,6 +32,7 @@ namespace HeroesandGoblins
             this.y = y;
         }
     }
+    [Serializable]
     class EmptyTile : Tile
     {
         public EmptyTile(int x, int y) : base(x, y)
@@ -38,6 +40,7 @@ namespace HeroesandGoblins
             ThisTile = TileType.Empty;
         }
     }
+    [Serializable]
     class Obstacle : Tile
     {
         public Obstacle(int x, int y) : base(x, y)
