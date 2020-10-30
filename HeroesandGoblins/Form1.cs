@@ -279,7 +279,7 @@ namespace HeroesandGoblins
                     {
                         for (int ivision = 0; ivision < 4; ivision++)
                         {
-                            if (engineMap.Enemies[i].Vision[0].thisTile == Tile.TileType.Hero)
+                            if (engineMap.Enemies[i].Vision[ivision].thisTile == Tile.TileType.Hero)
                             {
                                 engineMap.Enemies[i].Attack(player);
                             }
